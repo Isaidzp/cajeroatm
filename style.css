@@ -1,0 +1,11 @@
+#col-derecha{
+    background: linear-gradient(rgba(17, 22, 34, 0.75), rgba(18, 23, 34, 0.75)), url(./cajertoatm.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+a{
+    text-decoration: none;
+    color: white;
+}
