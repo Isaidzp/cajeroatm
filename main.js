@@ -1,15 +1,31 @@
 window.addEventListener("DOMContentLoaded", () => {
     escuchaEventoCuentas();
     escuchaEventoOpc();
+    if (localStorage.getItem("usuarioLogeado") != null) {
+        const inicioUsuarios = document.getElementById("inicio-usuarios");
+        inicioUsuarios.classList.add("d-none")
+        const operaciones = document.getElementById("operaciones");
+        operaciones.classList.remove("d-none");
+    }
 });
 
 const llamadaApi = () => {
     var cuentas = [
-        { nombre: "ISAI", saldo: 200, password: 'hola', id: 1 },
-        { nombre: "JUAN", saldo: 290, password: 'hola2', id: 2 },
-        { nombre: "EMMANUEL", saldo: 67, password: 'hola3', id: 3 }
+        { nombre: "ISAI", saldo: 200, password: 'hola', id: 1, boton: 'button1' },
+        { nombre: "JUAN", saldo: 290, password: 'hola2', id: 2, boton: 'button2' },
+        { nombre: "EMMANUEL", saldo: 67, password: 'hola3', id: 3, boton: 'button3' }
     ];
     return cuentas;
+}
+
+function buscarCuentas(claseBoton, password) {
+    const cuentas = llamadaApi();
+    for (let i = 0; i < cuentas.length; i++) {
+        if (password == cuentas[i].password && cuentas[i].boton == claseBoton) {
+            return cuentas[i];
+        }
+    }
+    return false;
 }
 
 const escuchaEventoCuentas = () => {
@@ -20,32 +36,35 @@ const escuchaEventoCuentas = () => {
         //  ******** BOTONES USUARIOS ***********//
 
         if ((event.target.tagName === "BUTTON" && event.target.classList.contains("button1")) || (event.target.tagName === "BUTTON" && event.target.classList.contains("button2")) || (event.target.tagName === "BUTTON" && event.target.classList.contains("button3"))) { //VALIDAR
+            console.log(event.target.classList)
+            var claseBoton = event.target.classList[2]
 
             let nombreBienvenida = document.getElementById("usuario");
             const botonOpc = document.getElementById("boton-opc").getBoundingClientRect(); // para cambiar de vista en la misma pestaña
             // console.log(botonOpc);
             var contador = 0;
             var intentos = 3;
-            var contra = prompt("Ingrese su contraseña")
             //*********USUARIOS-INICIO DE SESION*******/
-            for (let i = 0; i < cuentas.length; i++) {
-                if (contra === cuentas[i].password) {
+            do {
+                var contra = prompt("Ingrese su contraseña")
+                let cuentaLog = buscarCuentas(claseBoton, contra)
+                if (cuentaLog != false) {
                     Swal.fire({
                         title: '¡Bienvenido!',
-                        html: `<b> HOLA ${cuentas[i].nombre} </b>`,
+                        html: `<b> HOLA ${cuentaLog.nombre} </b>`,
                         widht: '90%'
                     });
-                    nombreBienvenida.innerHTML = `¡HOLA ${cuentas[i].nombre}!`;
+                    nombreBienvenida.innerHTML = `¡HOLA ${cuentaLog.nombre}!`;
                     // window.scroll({
                     //     top: botonOpc.top, behavior: "smooth"
                     // })
-                    localStorage.setItem("usuarioLogeado", cuentas[i].id)
+                    localStorage.setItem("usuarioLogeado", JSON.stringify(cuentaLog));
                     const inicioUsuarios = document.getElementById("inicio-usuarios");
                     inicioUsuarios.classList.add("d-none")
                     const operaciones = document.getElementById("operaciones");
                     operaciones.classList.remove("d-none");
                     break;
-                } 
+                }
                 else {
                     alert(`Contraseña incorrecta, tiene ${intentos--} intentos`)
                     if (intentos === 0) {
@@ -53,8 +72,7 @@ const escuchaEventoCuentas = () => {
                         break;
                     }
                 }
-            }
-
+            } while (contador < 3);
         }
     })
 }
@@ -65,37 +83,48 @@ const escuchaEventoOpc = () => {
     const cuentas = llamadaApi();
     const colOpc = document.getElementById("col-opc");
 
+    //  ******** BOTON CONSULTAR SALDO ***********//
+
     colOpc.addEventListener("click", (event) => {
         if (event.target.tagName === "BUTTON" && event.target.classList.contains("c-saldo")) {
-            alert(`Su saldo es de:  $ ${cuentas[0].saldo}`)
+            const cuentaLog = JSON.parse(localStorage.getItem("usuarioLogeado"));
+            alert(`Su saldo es de:  $ ${cuentaLog.saldo}`)
         }
 
+
+        //  ******** BOTON INGRESAR MONTO ***********//
         if (event.target.tagName === "BUTTON" && event.target.classList.contains("in-monto")) {
-            const idLog = localStorage.getItem("usuarioLogeado");
-            let cuentaLog = {}
-            for (let i = 0; i < cuentas.length; i++) {
-                if (cuentas[i].id == idLog) {
-                    cuentaLog = cuentas[i];
-                }
-            }
+            const cuentaLog = JSON.parse(localStorage.getItem("usuarioLogeado"));
             console.log(cuentaLog);
 
-            var ingreso = prompt("Digite el total de dinero a depositar");
-            var saldoIngreso = parseInt(cuentaLog.saldo) + parseInt(ingreso);
+            let ingreso = prompt("Digite el total de dinero a depositar");
+            let saldoIngreso = parseInt(cuentaLog.saldo) + parseInt(ingreso);
             alert(`Usted tiene en cuenta un total de $${saldoIngreso}`)
-            for (let i = 0; i < cuentas.length; i++) {
-                if (cuentas[i].id == idLog) {
-                    cuentas[i].saldo = saldoIngreso;
-                }
-            }
-            console.log(saldoIngreso)
+            localStorage.setItem("usuarioLogeado", JSON.stringify({
+                ...cuentaLog,
+                saldo: saldoIngreso
+            }))
         }
 
+        //  ******** BOTON RETIRAR MONTO ***********//
         if (event.target.tagName === "BUTTON" && event.target.classList.contains("re-monto")) {
-            var retiro = prompt("Digite el total de dinero a retirar");
-            var saldoRetiro = cuentas[0].saldo - retiro;
+            const cuentaLog = JSON.parse(localStorage.getItem("usuarioLogeado"));
+            let retiro = prompt("Digite el total de dinero a retirar");
+            let saldoRetiro = parseInt(cuentaLog.saldo) - parseInt(retiro);
             alert(`Usted tiene en cuenta un total de $${saldoRetiro}`)
-            console.log(saldoRetiro)
+            localStorage.setItem("usuarioLogeado", JSON.stringify({
+                ...cuentaLog,
+                saldo: saldoRetiro
+            }))
+            console.log(saldoRetiro);
         }
     })
+}
+
+const cerrarSesion = () => {
+    localStorage.clear()
+    const inicioUsuarios = document.getElementById("inicio-usuarios");
+    inicioUsuarios.classList.remove("d-none")
+    const operaciones = document.getElementById("operaciones");
+    operaciones.classList.add("d-none");
 }
