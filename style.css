@@ -1,11 +1,23 @@
-#col-derecha{
+.img-derecha{
     background: linear-gradient(rgba(17, 22, 34, 0.75), rgba(18, 23, 34, 0.75)), url(./cajertoatm.jpg);
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
 }
 
-a{
+a, .color-letra{
     text-decoration: none;
     color: white;
 }
+
+.height{
+    height: 100vh;
+}
+
+button{
+    margin: 5px;
+}
+
+/* body {
+    font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif; 
+  } */
