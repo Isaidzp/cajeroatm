@@ -83,8 +83,10 @@ const escuchaEventoOpc = () => {
     const cuentas = llamadaApi();
     const colOpc = document.getElementById("col-opc");
 
-    //  ******** BOTON CONSULTAR SALDO ***********//
+    
     colOpc.addEventListener("click", (event) => {
+
+        //  ******** BOTON CONSULTAR SALDO ***********//
         if (event.target.tagName === "BUTTON" && event.target.classList.contains("c-saldo")) {
             const cuentaLog = JSON.parse(localStorage.getItem("usuarioLogeado"));
             alert(`Su saldo es de:  $ ${cuentaLog.saldo}`)
@@ -105,6 +107,8 @@ const escuchaEventoOpc = () => {
             if(ingreso == "" ){
                 ingreso = 0;
             }
+
+            //hace la suma del monto actual mas el monto ingresado
             let saldoIngreso = parseInt(cuentaLog.saldo) + parseInt(ingreso);
 
             //valida que el usuario no se pase de la cantidad máxima permitida
@@ -128,12 +132,12 @@ const escuchaEventoOpc = () => {
         //  ******** BOTON RETIRAR MONTO ***********//
         if (event.target.tagName === "BUTTON" && event.target.classList.contains("re-monto")) {
             const cuentaLog = JSON.parse(localStorage.getItem("usuarioLogeado"));
-
+            
             let retiro = prompt("Digite el total de dinero a retirar");
 
             //validación para que el usuario unicamente ingrese números
-            while (ingreso == null || /\D/.test(ingreso)) {
-                ingreso = prompt("Ingrese un número VÁLIDO: ");
+            while (retiro == null || /\D/.test(retiro)) {
+                retiro = prompt("Ingrese un número VÁLIDO: ");
             };
 
             // valida que al no ingresar nada lo tome como 0
@@ -141,6 +145,7 @@ const escuchaEventoOpc = () => {
                 retiro = 0;
             }
 
+            //hace la resta del saldo actual menos el monton ingresado
             let saldoRetiro = parseInt(cuentaLog.saldo) - parseInt(retiro);
 
             //valida que el usuario no pueda retirar menos del dinero que tiene en cuenta
